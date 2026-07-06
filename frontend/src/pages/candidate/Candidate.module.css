@@ -1,0 +1,341 @@
+.profileGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .profileGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.uploadBox {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-main);
+  padding: 3rem;
+  text-align: center;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 2rem;
+}
+
+.uploadBox:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.uploadTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.uploadSubtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.suggestionsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.suggestionCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  background-color: #FFFFFF;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  transition: all 0.2s ease;
+}
+
+.suggestionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.suggestionIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.suggestionText {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.jobSearchGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1.8fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .jobSearchGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.jobsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.candidateJobCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.candidateJobCard:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+.activeJobCard {
+  border: 2px solid var(--color-primary) !important;
+  box-shadow: var(--shadow-md);
+}
+
+.jobTitle {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.25rem;
+}
+
+.jobMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.jobTag {
+  background-color: var(--color-bg);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.jobDetailPanel {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-main);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 100px;
+}
+
+.jobDetailSection {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.jobDetailSection h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.25rem;
+}
+
+.jobDetailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Applications timeline */
+.timelineWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 1.5rem;
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-main);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  align-items: center;
+}
+
+.timelineStatusBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 110px;
+}
+
+.timelineDivider {
+  width: 1px;
+  height: 50px;
+  background-color: var(--color-border);
+}
+
+.timelineDetails {
+  flex: 1;
+}
+
+.timelineJob {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.timelineDate {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+/* Mock Interview */
+.interviewGrid {
+  display: grid;
+  grid-template-columns: 1.7fr 1.3fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .interviewGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chatWrapper {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-main);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  height: 65vh;
+}
+
+.chatHeader {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+.chatHeader svg {
+  color: #8aa810;
+}
+
+.chatBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background-color: var(--color-bg);
+}
+
+.chatBubble {
+  max-width: 75%;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.bubbleAi {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+
+.bubbleUser {
+  background-color: var(--color-primary-light);
+  border: 1px solid var(--color-primary);
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+  color: var(--color-text-main);
+}
+
+.chatInputArea {
+  padding: 1.25rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Notifications */
+.notifList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.notifItem {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.notifItemUnread {
+  border-left: 4px solid var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.notifIcon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notifContent {
+  flex: 1;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.notifTime {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.notifClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}

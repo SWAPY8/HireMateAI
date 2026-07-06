@@ -1,0 +1,4 @@
+export const EMAIL_TEMPLATES = {
+    GENERAL: import.meta.env.VITE_EMAILJS_GENERAL_TEMPLATE,
+    INTERVIEW: import.meta.env.VITE_EMAILJS_INTERVIEW_TEMPLATE,
+};

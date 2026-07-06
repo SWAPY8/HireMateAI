@@ -1,0 +1,612 @@
+.loadingSpinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.iconContainer {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-info { background-color: var(--color-info-light); color: var(--color-info); }
+.icon-success { background-color: var(--color-success-light); color: var(--color-success); }
+.icon-warning { background-color: var(--color-warning-light); color: var(--color-warning); }
+.icon-primary { background-color: var(--color-primary-light); color: #8aa810; }
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
+.dashboardSplitGrid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .dashboardSplitGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cardTitleBar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.aiIcon {
+  color: #a3cc20;
+}
+
+.panelSubtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.recommendationList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recommendationItem {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  transition: all 0.2s ease;
+}
+
+.recommendationItem:hover {
+  transform: translateX(4px);
+  border-color: var(--color-border-hover);
+}
+
+.recIndicator {
+  flex-shrink: 0;
+}
+
+.priorityBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.priority-high { background-color: var(--color-danger-light); color: var(--color-danger); }
+.priority-medium { background-color: var(--color-warning-light); color: var(--color-warning); }
+.priority-low { background-color: var(--color-info-light); color: var(--color-info); }
+
+.recText {
+  flex: 1;
+}
+
+.recText h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.recText p {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.recArrow {
+  color: var(--color-text-secondary);
+}
+
+/* Pipeline summary bar */
+.pipelineBarList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pipelineBarItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pipelineBarHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+}
+
+.pipelineBarLabel {
+  font-weight: 600;
+}
+
+.pipelineBarCount {
+  color: var(--color-text-secondary);
+}
+
+.progressBarBg {
+  height: 8px;
+  background-color: var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.progress-applied { background-color: var(--color-info); }
+.progress-screening { background-color: var(--color-warning); }
+.progress-interviewing { background-color: #9333ea; }
+.progress-selected { background-color: var(--color-success); }
+.progress-rejected { background-color: var(--color-danger); }
+
+/* Jobs Page Styles */
+.jobsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.jobCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 250px;
+}
+
+.jobCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.jobCardHeader h3 {
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.jobMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+}
+
+.jobMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.jobDescSnippet {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.jobCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+.jobStats {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.jobActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Modals & Forms */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background-color: #FFFFFF;
+  border-radius: var(--radius-main);
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modalBody {
+  padding: 2rem;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.jdGeneratorWrapper {
+  background-color: var(--color-primary-light);
+  border: 1px dashed var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.jdGeneratorHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
+}
+
+.jdGeneratorHeader svg {
+  color: #8aa810;
+}
+
+.jdGeneratorDesc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+/* Candidate list and profile cards */
+.tableContainer {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.candidateTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.candidateTable th {
+  background-color: var(--color-bg);
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.candidateTable td {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.9rem;
+}
+
+.candidateInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.candidateAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.candidateName {
+  font-weight: 600;
+}
+
+.candidateEmail {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.atsProgressWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.atsProgressBar {
+  flex: 1;
+  height: 6px;
+  background-color: var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.atsProgressFill {
+  height: 100%;
+  background-color: var(--color-success);
+}
+
+.atsScoreNum {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Kanban Board Pipeline */
+.kanbanBoard {
+  display: flex;
+  gap: 1.25rem;
+  overflow-x: auto;
+  padding-bottom: 1.5rem;
+  align-items: flex-start;
+}
+
+.kanbanColumn {
+  flex: 0 0 280px;
+  flex-shrink: 0;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-main);
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+}
+
+
+.kanbanColumnHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.kanbanColumnTitle {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.kanbanColumnBadge {
+  background-color: var(--color-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+}
+
+.kanbanCardList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 400px;
+}
+
+.kanbanCard {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.kanbanCard:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.kanbanCardTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.kanbanCardJob {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.kanbanCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed var(--color-border);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.kanbanAtsBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-success);
+  background-color: var(--color-success-light);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Scheduler / QA Page */
+.splitLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 900px) {
+  .splitLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.qaContainer {
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+}
+
+.qaBlock {
+  margin-bottom: 1.5rem;
+}
+
+.qaBlock h4 {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.qaItem {
+  font-size: 0.88rem;
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-border);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Charts Wrapper */
+.chartGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+  .chartGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chartCard {
+  height: 320px;
+}
+
+.emailLogsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.emailLogCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.emailLogHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.emailLogMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.emailLogSubject {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.emailLogTo {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.emailLogTime {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.emailLogBody {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  white-space: pre-line;
+  background-color: var(--color-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
