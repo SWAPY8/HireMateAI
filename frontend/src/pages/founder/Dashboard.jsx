@@ -38,7 +38,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <PageWrapper title="Overview" subtitle="Loading metrics...">
-        <div className={styles.loadingSpinner}>Loading...</div>
+        <div className="loadingSpinner">Loading...</div>
       </PageWrapper>
     );
   }

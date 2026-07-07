@@ -148,7 +148,7 @@ const Candidates = () => {
       </div>
 
       {loading ? (
-        <div className={styles.loadingSpinner}>Loading candidates...</div>
+        <div className="loadingSpinner">Loading candidates...</div>
       ) : error ? (
         <div className={styles.errorMessage}>{error}</div>
       ) : filteredCandidates.length === 0 ? (

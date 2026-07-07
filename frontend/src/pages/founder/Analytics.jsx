@@ -39,7 +39,7 @@ const Analytics = () => {
   if (loading) {
     return (
       <PageWrapper title="Analytics Dashboard" subtitle="Fetching metric datasets...">
-        <div className={styles.loadingSpinner}>Loading analytical dashboard...</div>
+        <div className="loadingSpinner">Loading analytical dashboard...</div>
       </PageWrapper>
     );
   }

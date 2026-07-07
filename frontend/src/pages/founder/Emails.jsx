@@ -178,7 +178,7 @@ const Emails = () => {
       subtitle="Draft personalized updates using the Email Agent and manage sent communications logs."
     >
       {loading ? (
-        <div className={styles.loadingSpinner}>Loading email engine...</div>
+        <div className="loadingSpinner">Loading email engine...</div>
       ) : error ? (
         <div className={styles.errorMessage}>{error}</div>
       ) : (

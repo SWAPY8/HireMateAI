@@ -1,12 +1,4 @@
-.loadingSpinner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  font-family: var(--font-heading);
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
+
 
 .statsGrid {
   display: grid;

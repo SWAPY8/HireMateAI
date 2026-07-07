@@ -134,7 +134,7 @@ const Jobs = () => {
       }
     >
       {loading ? (
-        <div className={styles.loadingSpinner}>Loading jobs...</div>
+        <div className="loadingSpinner">Loading jobs...</div>
       ) : error ? (
         <div className={styles.errorMessage}>{error}</div>
       ) : jobs.length === 0 ? (

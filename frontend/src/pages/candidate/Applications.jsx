@@ -37,7 +37,7 @@ const Applications = () => {
       subtitle="Examine status, interview stages progress, and recruiter evaluation reports."
     >
       {loading ? (
-        <div className="founder_loadingSpinner__3HlQ_">Loading application records...</div>
+        <div className="loadingSpinner">Loading application records...</div>
       ) : error ? (
         <div className="founder_errorMessage__3HlQ_">{error}</div>
       ) : apps.length === 0 ? (

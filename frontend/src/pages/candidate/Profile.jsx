@@ -106,7 +106,7 @@ const Profile = () => {
       subtitle="Complete your profile credentials to match with target job descriptions."
     >
       {loading ? (
-        <div className="founder_loadingSpinner__3HlQ_">Loading profile...</div>
+        <div className="loadingSpinner">Loading profile...</div>
       ) : error ? (
         <div className="founder_errorMessage__3HlQ_">{error}</div>
       ) : (

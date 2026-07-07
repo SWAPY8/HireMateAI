@@ -166,7 +166,7 @@ HireMate AI Team`;
         title="AI Resume Optimizer" 
         subtitle="Parse your resume credentials using our parser agent and view optimization suggestions."
       >
-        <div className="founder_loadingSpinner__3HlQ_">Loading resume analysis data...</div>
+        <div className="loadingSpinner">Loading resume analysis data...</div>
       </PageWrapper>
     );
   }

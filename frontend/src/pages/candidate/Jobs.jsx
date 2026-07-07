@@ -98,7 +98,7 @@ const Jobs = () => {
       </div>
 
       {loading ? (
-        <div className="founder_loadingSpinner__3HlQ_">Loading job listings...</div>
+        <div className="loadingSpinner">Loading job listings...</div>
       ) : error ? (
         <div className="founder_errorMessage__3HlQ_">{error}</div>
       ) : filteredJobs.length === 0 ? (

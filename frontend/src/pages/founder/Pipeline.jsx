@@ -82,7 +82,7 @@ const Pipeline = () => {
       }
     >
       {loading ? (
-        <div className={styles.loadingSpinner}>Loading pipeline phases...</div>
+        <div className="loadingSpinner">Loading pipeline phases...</div>
       ) : error ? (
         <div className={styles.errorMessage}>{error}</div>
       ) : (

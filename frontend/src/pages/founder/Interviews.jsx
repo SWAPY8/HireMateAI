@@ -184,7 +184,7 @@ HireMate Recruiting Team`;
       }
     >
       {loading ? (
-        <div className={styles.loadingSpinner}>Loading interviews...</div>
+        <div className="loadingSpinner">Loading interviews...</div>
       ) : error ? (
         <div className={styles.errorMessage}>{error}</div>
       ) : (

@@ -181,7 +181,7 @@ HireMate AI Training Team`;
       subtitle="Practice mock coding and behavioral interviews with custom agent-guided feedback results."
     >
       {loading ? (
-        <div className="founder_loadingSpinner__3HlQ_">Loading interview environment...</div>
+        <div className="loadingSpinner">Loading interview environment...</div>
       ) : (
         <div className={styles.interviewGrid}>
           {/* Chat Window */}
