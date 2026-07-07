@@ -3,16 +3,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { KeyRound, Mail, Sparkles, User, Briefcase } from 'lucide-react';
 import styles from './Auth.module.css';
-
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const queryParams = new URLSearchParams(window.location.search);
+  const isExpired = queryParams.get('expired') === 'true';
+  const initialEmail = queryParams.get('email') || '';
+
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const queryParams = new URLSearchParams(window.location.search);
-  const isExpired = queryParams.get('expired') === 'true';
 
   const handleSubmit = async (e) => {
     e.preventDefault();

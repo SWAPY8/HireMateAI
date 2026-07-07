@@ -25,6 +25,10 @@ const Register = () => {
       }
     } catch (err) {
       setError(err);
+      if (typeof err === 'string' && err.toLowerCase().includes('already exists')) {
+        alert('A user with this email already exists. Redirecting you to the login page.');
+        navigate(`/login?email=${encodeURIComponent(email)}`);
+      }
     }
   };
 
