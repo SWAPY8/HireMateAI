@@ -30,7 +30,7 @@ api.interceptors.response.use(
       localStorage.removeItem('hiremate_user');
       // Only redirect if not already on login/register pages
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
-        window.location.href = '/login';
+        window.location.href = '/login?expired=true';
       }
     }
     return Promise.reject(error);

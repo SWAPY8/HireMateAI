@@ -18,6 +18,9 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           console.error("Token validation failed:", error);
           logout();
+          if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+            window.location.href = '/login?expired=true';
+          }
         }
       }
       setLoading(false);

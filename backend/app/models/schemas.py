@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, List
 from datetime import datetime
+import json
 
 # Auth Schemas
 class UserRegister(BaseModel):
@@ -112,8 +113,39 @@ class CandidateProfileOut(BaseModel):
     work_preference: Optional[str] = "Remote"
     notice_period: Optional[str] = None
     profile_photo: Optional[str] = None
-    user: UserOut
     
+    # Parsed ATS fields
+    ats_score: Optional[int] = None
+    resume_quality_score: Optional[int] = None
+    keyword_match: Optional[str] = None
+    missing_skills: Optional[List[str]] = None
+    skill_gap_analysis: Optional[str] = None
+    formatting_issues: Optional[List[str]] = None
+    quantifiable_achievement_suggestions: Optional[List[str]] = None
+    recruiter_impression: Optional[str] = None
+    salary_estimate: Optional[str] = None
+    interview_readiness_score: Optional[int] = None
+    improvement_roadmap: Optional[str] = None
+    strengths: Optional[List[str]] = None
+    weaknesses: Optional[List[str]] = None
+    suggestions: Optional[List[str]] = None
+    
+    user: UserOut
+
+    @field_validator('missing_skills', 'formatting_issues', 'quantifiable_achievement_suggestions', 'strengths', 'weaknesses', 'suggestions', mode='before')
+    @classmethod
+    def parse_json_list(cls, v):
+        if isinstance(v, str):
+            try:
+                return json.loads(v)
+            except:
+                if "," in v:
+                    return [x.strip() for x in v.split(",") if x.strip()]
+                return [v] if v.strip() else []
+        if isinstance(v, list):
+            return v
+        return v or []
+
     class Config:
         from_attributes = True
 

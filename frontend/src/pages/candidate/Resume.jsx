@@ -10,6 +10,7 @@ const Resume = () => {
   const { user } = useAuth();
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [successData, setSuccessData] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const [tips, setTips] = useState([]);
@@ -25,7 +26,56 @@ const Resume = () => {
   };
 
   useEffect(() => {
-    fetchTips();
+    const loadProfileAndTips = async () => {
+      setProfileLoading(true);
+      try {
+        await fetchTips();
+        const res = await api.get('/candidates/profile');
+        if (res.data.resume_path && res.data.ats_score !== null) {
+          setSuccessData({
+            name: res.data.name || res.data.user.full_name,
+            skills: res.data.skills,
+            experience: res.data.experience,
+            education: res.data.education,
+            bio: res.data.bio,
+            phone: res.data.phone,
+            location: res.data.location,
+            dob: res.data.dob,
+            linkedin_url: res.data.linkedin_url,
+            portfolio_url: res.data.portfolio_url,
+            github_url: res.data.github_url,
+            projects: res.data.projects,
+            certifications: res.data.certifications,
+            preferred_role: res.data.preferred_role,
+            expected_salary: res.data.expected_salary,
+            preferred_location: res.data.preferred_location,
+            work_preference: res.data.work_preference,
+            notice_period: res.data.notice_period,
+            ats_score: res.data.ats_score,
+            resume_quality_score: res.data.resume_quality_score,
+            keyword_match: res.data.keyword_match,
+            missing_skills: res.data.missing_skills || [],
+            skill_gap_analysis: res.data.skill_gap_analysis,
+            strengths: res.data.strengths || [],
+            weaknesses: res.data.weaknesses || [],
+            formatting_issues: res.data.formatting_issues || [],
+            quantifiable_achievement_suggestions: res.data.quantifiable_achievement_suggestions || [],
+            recruiter_impression: res.data.recruiter_impression,
+            salary_estimate: res.data.salary_estimate,
+            interview_readiness_score: res.data.interview_readiness_score,
+            improvement_roadmap: res.data.improvement_roadmap
+          });
+          if (res.data.suggestions) {
+            setSuggestions(res.data.suggestions);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load candidate profile details:", err);
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+    loadProfileAndTips();
   }, []);
 
   const handleFileChange = (e) => {
@@ -110,6 +160,17 @@ HireMate AI Team`;
     }
   };
 
+  if (profileLoading) {
+    return (
+      <PageWrapper 
+        title="AI Resume Optimizer" 
+        subtitle="Parse your resume credentials using our parser agent and view optimization suggestions."
+      >
+        <div className="founder_loadingSpinner__3HlQ_">Loading resume analysis data...</div>
+      </PageWrapper>
+    );
+  }
+
   return (
     <PageWrapper 
       title="AI Resume Optimizer" 
@@ -153,9 +214,9 @@ HireMate AI Team`;
           </form>
 
           {/* Parsed Output Result */}
-          {successData && (
+          {successData ? (
             <div className="glass-card fade-in-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifycontent: 'space-between', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.75rem' }}>
                 <h3 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-success)', margin: 0 }}>
                   <CheckCircle size={18} />
                   <span>AI Resume Analysis Complete</span>
@@ -305,6 +366,14 @@ HireMate AI Team`;
                   </pre>
                 </div>
               </div>
+            </div>
+          ) : (
+            <div className="glass-card fade-in-up" style={{ textAlign: 'center', padding: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+              <FileText size={48} style={{ color: 'var(--color-text-secondary)', marginBottom: '0.5rem' }} />
+              <h3 style={{ margin: 0 }}>No Resume Analysis Found</h3>
+              <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', maxWidth: '400px', margin: '0 auto', lineHeight: 1.4 }}>
+                You have not uploaded or analyzed a resume document yet. Upload your resume above to calculate your structural score and view AI improvements.
+              </p>
             </div>
           )}
         </div>

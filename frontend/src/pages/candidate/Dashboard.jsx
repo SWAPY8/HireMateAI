@@ -18,7 +18,7 @@ const Dashboard = () => {
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+  const [profile, setProfile] = useState(null);
   const [notifs, setNotifs] = useState([]);
 
   useEffect(() => {
@@ -27,9 +27,9 @@ const Dashboard = () => {
         const appsRes = await api.get('/candidates/my-applications');
         setApps(appsRes.data);
         
-        // Fetch mock notifications from database if we have them
-        const notifRes = await api.get('/auth/me');
-        // We will make a generic notification generator if it is empty to guide candidate
+        const profileRes = await api.get('/candidates/profile');
+        setProfile(profileRes.data);
+        
         setNotifs([
           { id: 1, message: "Welcome to HireMate AI! Build your candidate profile to match open job listings.", time: "Just now", unread: true },
           { id: 2, message: "Upload a PDF resume to instantly evaluate your structural formatting and keyword ATS scores.", time: "1 hour ago", unread: false }
@@ -93,19 +93,47 @@ const Dashboard = () => {
             <Sparkles size={20} style={{ color: '#8aa810' }} />
             <span>AI Resume Optimization</span>
           </h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
-            Upload your resume document in the profile optimizer panel. Our analyzer agent will extract keywords and score your resume structure vs targeted roles.
-          </p>
-          
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-            <Link to="/candidate/resume" className="btn btn-primary" style={{ gap: '0.5rem' }}>
-              <span>Analyze Resume Document</span>
-              <ArrowRight size={16} />
-            </Link>
-            <Link to="/candidate/jobs" className="btn btn-secondary">
-              Browse Open Positions
-            </Link>
-          </div>
+          {profile && profile.resume_path && profile.ats_score !== null ? (
+            <>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
+                Your resume document is analyzed! Your current ATS match score is **{profile.ats_score}%**. View detailed breakdown of formatting and keyword recommendations.
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', margin: '0.25rem 0' }}>
+                <div style={{ padding: '0.5rem 1rem', backgroundColor: 'var(--color-bg)', borderRadius: '8px', border: '1px solid var(--color-border)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>ATS Compatibility</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)', marginTop: '0.1rem' }}>{profile.ats_score}%</div>
+                </div>
+                <div style={{ padding: '0.5rem 1rem', backgroundColor: 'var(--color-bg)', borderRadius: '8px', border: '1px solid var(--color-border)', textAlign: 'center' }}>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-text-secondary)', fontWeight: 600 }}>Formatting Quality</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-success)', marginTop: '0.1rem' }}>{profile.resume_quality_score}%</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <Link to="/candidate/resume" className="btn btn-primary" style={{ gap: '0.5rem' }}>
+                  <span>View Full Analysis</span>
+                  <ArrowRight size={16} />
+                </Link>
+                <Link to="/candidate/jobs" className="btn btn-secondary">
+                  Browse Positions
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
+                No resume analyzed yet. Upload your resume now to instantly calculate your ATS compatibility score and extract missing skills.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <Link to="/candidate/resume" className="btn btn-primary" style={{ gap: '0.5rem' }}>
+                  <span>Upload Resume</span>
+                  <ArrowRight size={16} />
+                </Link>
+                <Link to="/candidate/jobs" className="btn btn-secondary">
+                  Browse Open Positions
+                </Link>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Notices */}

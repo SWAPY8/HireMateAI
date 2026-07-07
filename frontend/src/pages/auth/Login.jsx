@@ -11,6 +11,9 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const queryParams = new URLSearchParams(window.location.search);
+  const isExpired = queryParams.get('expired') === 'true';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -43,6 +46,22 @@ const Login = () => {
           <h3>Welcome back</h3>
           <p>Login to manage your hiring pipeline or view job matches</p>
         </div>
+
+        {isExpired && (
+          <div style={{ 
+            backgroundColor: 'var(--color-danger-light)', 
+            border: '1px solid var(--color-danger)', 
+            padding: '0.75rem', 
+            borderRadius: '8px', 
+            fontSize: '0.82rem', 
+            color: 'var(--color-danger)', 
+            marginBottom: '1rem', 
+            textAlign: 'center',
+            fontWeight: 500
+          }}>
+            Your session has expired. Please sign in again.
+          </div>
+        )}
 
         {error && <div className={styles.errorMessage}>{error}</div>}
 

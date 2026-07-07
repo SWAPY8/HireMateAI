@@ -91,13 +91,26 @@ async def upload_resume(
     profile.work_preference = parsed_data.get("work_preference", "Remote")
     profile.notice_period = parsed_data.get("notice_period", "")
     
+    # Save parsed resume ATS analytics fields
+    import json
+    profile.ats_score = parsed_data.get("ats_score", 70)
+    profile.resume_quality_score = parsed_data.get("resume_quality_score", 65)
+    profile.keyword_match = parsed_data.get("keyword_match", "Good fit keywords.")
+    profile.missing_skills = json.dumps(parsed_data.get("missing_skills", []))
+    profile.skill_gap_analysis = parsed_data.get("skill_gap_analysis", "")
+    profile.formatting_issues = json.dumps(parsed_data.get("formatting_issues", []))
+    profile.quantifiable_achievement_suggestions = json.dumps(parsed_data.get("quantifiable_achievement_suggestions", []))
+    profile.recruiter_impression = parsed_data.get("recruiter_impression", "")
+    profile.salary_estimate = parsed_data.get("salary_estimate", "")
+    profile.interview_readiness_score = parsed_data.get("interview_readiness_score", 70)
+    profile.improvement_roadmap = parsed_data.get("improvement_roadmap", "")
+    profile.strengths = json.dumps(parsed_data.get("strongest_sections", []))
+    profile.weaknesses = json.dumps(parsed_data.get("weakest_sections", []))
+    
     # Update user's name
     if parsed_data.get("name"):
         current_user.full_name = parsed_data.get("name")
         
-    db.commit()
-    db.refresh(profile)
-    
     # Generate AI Resume Improvement Suggestions
     improvement_suggestions = parsed_data.get("suggestions", [])
     if not improvement_suggestions:
@@ -106,6 +119,11 @@ async def upload_resume(
             "Include links to live projects or demo videos in your portfolio section.",
             "Ensure your experience section lists roles in reverse chronological order with clear dates."
         ]
+        
+    profile.suggestions = json.dumps(improvement_suggestions)
+        
+    db.commit()
+    db.refresh(profile)
     
     # Include all parsed ATS analysis fields
     return {
@@ -131,20 +149,22 @@ async def upload_resume(
             "notice_period": profile.notice_period,
             
             # ATS Analysis fields
-            "ats_score": parsed_data.get("ats_score", 70),
-            "resume_quality_score": parsed_data.get("resume_quality_score", 65),
-            "keyword_match": parsed_data.get("keyword_match", "Good fit keywords."),
+            "ats_score": profile.ats_score,
+            "resume_quality_score": profile.resume_quality_score,
+            "keyword_match": profile.keyword_match,
             "missing_skills": parsed_data.get("missing_skills", []),
-            "skill_gap_analysis": parsed_data.get("skill_gap_analysis", ""),
+            "skill_gap_analysis": profile.skill_gap_analysis,
             "strongest_sections": parsed_data.get("strongest_sections", []),
             "weakest_sections": parsed_data.get("weakest_sections", []),
+            "strengths": parsed_data.get("strongest_sections", []),
+            "weaknesses": parsed_data.get("weakest_sections", []),
             "formatting_issues": parsed_data.get("formatting_issues", []),
             "grammar_suggestions": parsed_data.get("grammar_suggestions", []),
             "quantifiable_achievement_suggestions": parsed_data.get("quantifiable_achievement_suggestions", []),
-            "recruiter_impression": parsed_data.get("recruiter_impression", ""),
-            "salary_estimate": parsed_data.get("salary_estimate", ""),
-            "interview_readiness_score": parsed_data.get("interview_readiness_score", 70),
-            "improvement_roadmap": parsed_data.get("improvement_roadmap", "")
+            "recruiter_impression": profile.recruiter_impression,
+            "salary_estimate": profile.salary_estimate,
+            "interview_readiness_score": profile.interview_readiness_score,
+            "improvement_roadmap": profile.improvement_roadmap
         },
         "suggestions": improvement_suggestions
     }

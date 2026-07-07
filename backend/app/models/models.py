@@ -62,6 +62,22 @@ class CandidateProfile(Base):
     profile_photo = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     
+    # Parsed Resume ATS report columns
+    ats_score = Column(Integer, nullable=True)
+    resume_quality_score = Column(Integer, nullable=True)
+    keyword_match = Column(Text, nullable=True)
+    missing_skills = Column(Text, nullable=True)  # Store as JSON list string
+    skill_gap_analysis = Column(Text, nullable=True)
+    formatting_issues = Column(Text, nullable=True)  # Store as JSON list string
+    quantifiable_achievement_suggestions = Column(Text, nullable=True)  # Store as JSON list string
+    recruiter_impression = Column(Text, nullable=True)
+    salary_estimate = Column(String, nullable=True)
+    interview_readiness_score = Column(Integer, nullable=True)
+    improvement_roadmap = Column(Text, nullable=True)
+    strengths = Column(Text, nullable=True)  # Store as JSON list string
+    weaknesses = Column(Text, nullable=True)  # Store as JSON list string
+    suggestions = Column(Text, nullable=True)  # Store as JSON list string
+    
     user = relationship("User", back_populates="profile")
     applications = relationship("Application", back_populates="candidate", cascade="all, delete-orphan")
 

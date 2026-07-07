@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     
     # AI API key
     AI_API_KEY: str = os.getenv("AI_API_KEY", "")
+    BACKUP_AI_API_KEY: str = os.getenv("BACKUP_AI_API_KEY", "")
     
     class Config:
         case_sensitive = True

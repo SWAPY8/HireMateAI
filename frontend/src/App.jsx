@@ -56,7 +56,11 @@ const ProtectedRoute = ({ allowedRoles }) => {
 };
 
 function AppContent() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'sans-serif', backgroundColor: 'var(--color-bg)', color: 'var(--color-text-main)' }}>Verifying Authentication Session...</div>;
+  }
 
   return (
     <Routes>
