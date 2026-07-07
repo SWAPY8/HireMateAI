@@ -82,6 +82,12 @@ def apply_to_job(
     if not profile:
         raise HTTPException(status_code=400, detail="Candidate profile must be created first.")
         
+    if not profile.resume_path:
+        raise HTTPException(
+            status_code=400,
+            detail="Please upload and analyze your resume before applying for jobs."
+        )
+        
     # Check if already applied
     existing_app = db.query(Application).filter(
         Application.job_id == app_in.job_id,

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/layout/PageWrapper';
 import api from '../../api';
 import { 
@@ -19,6 +20,7 @@ const Jobs = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [profile, setProfile] = useState(null);
   
   // Selection
   const [selectedJob, setSelectedJob] = useState(null);
@@ -29,8 +31,10 @@ const Jobs = () => {
     try {
       const jobsRes = await api.get('/jobs');
       const appsRes = await api.get('/candidates/my-applications');
+      const profileRes = await api.get('/candidates/profile');
       setJobs(jobsRes.data);
       setApplications(appsRes.data);
+      setProfile(profileRes.data);
       if (jobsRes.data.length > 0 && !selectedJob) {
         setSelectedJob(jobsRes.data[0]);
       }
@@ -47,6 +51,10 @@ const Jobs = () => {
   }, []);
 
   const handleApply = async (jobId) => {
+    if (!profile || !profile.resume_path) {
+      alert("Please upload and analyze your resume before applying for jobs.");
+      return;
+    }
     setApplying(true);
     try {
       await api.post('/candidates/apply', { job_id: jobId });
@@ -157,6 +165,20 @@ const Jobs = () => {
                           <div style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)', marginTop: '0.4rem' }}>
                             ATS Match Score: <strong>{app.ats_score}%</strong>
                           </div>
+                        </div>
+                      );
+                    }
+                    if (!profile || !profile.resume_path) {
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+                          <div style={{ color: 'var(--color-danger)', fontSize: '0.82rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', maxWidth: '320px', textAlign: 'right' }}>
+                            <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                            <span>Please upload and analyze your resume before applying for jobs.</span>
+                          </div>
+                          <Link to="/candidate/resume" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <Sparkles size={16} />
+                            <span>Upload Resume</span>
+                          </Link>
                         </div>
                       );
                     }
