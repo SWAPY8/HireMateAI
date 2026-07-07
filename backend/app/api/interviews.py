@@ -50,11 +50,19 @@ def schedule_interview(
     meeting_details = InterviewSchedulerAgent.generate_meeting_details(int_in.location_type)
     
     # Pre-generate some questions based on job description & candidate skills
-    generated_qs = InterviewQuestionGenerator.generate(
-        job_title=app.job.title,
-        candidate_skills=app.candidate.skills if app.candidate.skills else "Python, React",
-        experience_level=app.job.type if app.job.type else "Mid Level"
-    )
+    # Wrapped in try/except so interview scheduling succeeds even if AI is unavailable
+    try:
+        generated_qs = InterviewQuestionGenerator.generate(
+            job_title=app.job.title,
+            candidate_skills=app.candidate.skills if app.candidate.skills else "Python, React",
+            experience_level=app.job.type if app.job.type else "Mid Level"
+        )
+    except Exception:
+        generated_qs = {
+            "technical": ["Describe your most relevant technical project and the challenges you solved."],
+            "behavioral": ["Tell me about a time you worked under pressure to meet a deadline."],
+            "cultural": ["What kind of team culture helps you do your best work?"]
+        }
     
     formatted_qs = "\n\n".join([
         "### Technical Questions:\n" + "\n".join(f"- {q}" for q in generated_qs["technical"]),
@@ -122,7 +130,14 @@ def update_interview(
         interview.feedback = int_up.feedback
         
         # Trigger feedback analyzer agent to summarize and give feedback
-        analysis = FeedbackAnalyzer.analyze_feedback(int_up.feedback)
+        try:
+            analysis = FeedbackAnalyzer.analyze_feedback(int_up.feedback)
+        except Exception:
+            analysis = {
+                "recommendation": "Borderline",
+                "score": 50,
+                "summary": "AI analysis temporarily unavailable. Manual review recommended."
+            }
         interview.application.feedback = f"Recommendation: {analysis['recommendation']} (Score: {analysis['score']}/100).\nSummary: {analysis['summary']}"
         
         # Automatically update candidate status based on evaluation

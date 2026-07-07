@@ -4,6 +4,13 @@ from app.core.ai import query_gemini
 class HiringRecommendationAgent:
     @staticmethod
     def get_dashboard_recommendations(jobs_count: int, applications_count: int, top_candidates: list) -> list:
+        fallback = [{
+            "title": "ATS Match Engine Active",
+            "description": "Your AI agent pipeline is running optimally. Upload resumes to match against active job listings.",
+            "type": "status",
+            "priority": "Low"
+        }]
+
         prompt = f"""
         You are an AI recruiting consultant. Provide actionable, high-value hiring recommendations for the founder.
         
@@ -21,14 +28,11 @@ class HiringRecommendationAgent:
         Ensure you only return valid JSON. Do not prefix with markdown formatting.
         """
         
-        raw_res = query_gemini(prompt, json_mode=True)
-        fallback = [{
-            "title": "ATS Match Engine Active",
-            "description": "Your AI agent pipeline is running optimally. Upload resumes to match against active job listings.",
-            "type": "status",
-            "priority": "Low"
-        }]
-        
+        try:
+            raw_res = query_gemini(prompt, json_mode=True)
+        except Exception:
+            return fallback
+            
         if not raw_res:
             return fallback
             

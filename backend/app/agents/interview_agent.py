@@ -22,17 +22,17 @@ class InterviewQuestionGenerator:
         Ensure you only return valid JSON. Do not prefix with markdown formatting.
         """
         
-        raw_res = query_gemini(prompt, json_mode=True)
         fallback = {
             "technical": ["Explain your experience in scaling web backends."],
             "behavioral": ["Tell me about a technical disagreement you resolved."],
             "cultural": ["Why do you want to join our startup?"]
         }
         
-        if not raw_res:
-            return fallback
-            
         try:
+            raw_res = query_gemini(prompt, json_mode=True)
+            if not raw_res:
+                return fallback
+                
             parsed = json.loads(raw_res)
             return {
                 "technical": parsed.get("technical", fallback["technical"]),
