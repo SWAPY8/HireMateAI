@@ -163,6 +163,11 @@ def start_mock_interview(
         raise HTTPException(status_code=404, detail="Application not found")
         
     candidate = app.candidate
+    if not candidate or not candidate.resume_path:
+        raise HTTPException(
+            status_code=400,
+            detail="Please upload and analyze your resume before starting a mock interview."
+        )
     skills = candidate.skills or "React, Python"
     experience = candidate.experience or "Not specified"
     education = candidate.education or "Not specified"
@@ -269,6 +274,11 @@ def mock_interview_chat_turn(
         raise HTTPException(status_code=404, detail="Application not found")
         
     candidate = app.candidate
+    if not candidate or not candidate.resume_path:
+        raise HTTPException(
+            status_code=400,
+            detail="Please upload and analyze your resume before starting a mock interview."
+        )
     skills = candidate.skills or "React, Python"
     experience = candidate.experience or "Not specified"
     education = candidate.education or "Not specified"

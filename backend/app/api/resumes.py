@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 import os
 import aiofiles
 import random
+import logging
+
+logger = logging.getLogger("app.api.resumes")
 
 from app.core.database import get_db
 from app.core.config import settings
@@ -64,10 +67,13 @@ async def upload_resume(
     # Parse resume using parser agent
     try:
         parsed_data = ResumeParser.parse(file.filename, content)
+    except HTTPException as he:
+        raise he
     except Exception as e:
+        logger.error(f"Error during resume parsing: {str(e)}")
         raise HTTPException(
-            status_code=502,
-            detail=f"AI Resume Extraction failed: {str(e)}. Please verify your document structure or retry."
+            status_code=503,
+            detail="The resume analyzer is temporarily unavailable due to high API demand. Please wait a moment and try uploading again."
         )
     
     # Update candidate profile with parsed info

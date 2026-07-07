@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/layout/PageWrapper';
 import api from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import { sendGeneralEmail } from '../../services/emailService';
-import { Send, Sparkles, Laptop, Shield, Award, HelpCircle } from 'lucide-react';
+import { Send, Sparkles, Laptop, Shield, Award, HelpCircle, AlertCircle } from 'lucide-react';
 import styles from './Candidate.module.css';
 
 const Interview = () => {
@@ -11,6 +12,7 @@ const Interview = () => {
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAppId, setSelectedAppId] = useState('');
+  const [profile, setProfile] = useState(null);
   
   // Chat States
   const [interviewStarted, setInterviewStarted] = useState(false);
@@ -31,6 +33,9 @@ const Interview = () => {
         if (response.data.length > 0) {
           setSelectedAppId(response.data[0].id.toString());
         }
+        
+        const profileRes = await api.get('/candidates/profile');
+        setProfile(profileRes.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -41,6 +46,10 @@ const Interview = () => {
   }, []);
 
   const handleStartInterview = async () => {
+    if (!profile || !profile.resume_path) {
+      alert("Please upload and analyze your resume before starting a mock interview.");
+      return;
+    }
     const app = apps.find(a => a.id.toString() === selectedAppId);
     if (!app) {
       alert('Please select an active role first.');
@@ -211,30 +220,46 @@ HireMate AI Training Team`;
               </>
             ) : (
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center', backgroundColor: 'var(--color-bg)' }}>
-                <Laptop size={48} style={{ color: 'var(--color-text-secondary)', marginBottom: '1.25rem' }} />
-                <h3>Select Role to Begin Training</h3>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '350px' }}>
-                  Pick a position you applied to and let our AI Interview Agent test your skills with role-based questions.
-                </p>
-
-                {apps.length === 0 ? (
-                  <p style={{ fontSize: '0.85rem', color: 'var(--color-danger)' }}>You must apply to at least one job listing first.</p>
+                {!profile || !profile.resume_path ? (
+                  <>
+                    <Laptop size={48} style={{ color: 'var(--color-danger)', marginBottom: '1.25rem' }} />
+                    <h3 style={{ color: 'var(--color-danger)', fontSize: '1.1rem', marginBottom: '0.75rem' }}>Resume Required</h3>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '350px', lineHeight: 1.4 }}>
+                      Please upload and analyze your resume before starting a mock interview.
+                    </p>
+                    <Link to="/candidate/resume" className="btn btn-primary" style={{ gap: '0.5rem' }}>
+                      <Sparkles size={16} />
+                      <span>Upload Resume</span>
+                    </Link>
+                  </>
                 ) : (
-                  <div style={{ display: 'flex', gap: '0.75rem', width: '100%', maxWidth: '350px' }}>
-                    <select 
-                      className="form-input" 
-                      value={selectedAppId} 
-                      onChange={(e) => setSelectedAppId(e.target.value)}
-                    >
-                      {apps.map(app => (
-                        <option key={app.id} value={app.id}>{app.job.title}</option>
-                      ))}
-                    </select>
-                    
-                    <button className="btn btn-primary" onClick={handleStartInterview}>
-                      <span>Start</span>
-                    </button>
-                  </div>
+                  <>
+                    <Laptop size={48} style={{ color: 'var(--color-text-secondary)', marginBottom: '1.25rem' }} />
+                    <h3>Select Role to Begin Training</h3>
+                    <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', maxWidth: '350px' }}>
+                      Pick a position you applied to and let our AI Interview Agent test your skills with role-based questions.
+                    </p>
+
+                    {apps.length === 0 ? (
+                      <p style={{ fontSize: '0.85rem', color: 'var(--color-danger)' }}>You must apply to at least one job listing first.</p>
+                    ) : (
+                      <div style={{ display: 'flex', gap: '0.75rem', width: '100%', maxWidth: '350px' }}>
+                        <select 
+                          className="form-input" 
+                          value={selectedAppId} 
+                          onChange={(e) => setSelectedAppId(e.target.value)}
+                        >
+                          {apps.map(app => (
+                            <option key={app.id} value={app.id}>{app.job.title}</option>
+                          ))}
+                        </select>
+                        
+                        <button className="btn btn-primary" onClick={handleStartInterview}>
+                          <span>Start</span>
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}

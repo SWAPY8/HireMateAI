@@ -15,8 +15,8 @@ def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-
     Uses direct REST API endpoints via urllib to support clean Python 3.13 deployments.
     Implements robust error handling, exponential backoff, and backup API key failover.
     """
-    primary_key = settings.AI_API_KEY
-    backup_key = settings.BACKUP_AI_API_KEY
+    primary_key = settings.AI_API_KEY.strip('\"\'') if settings.AI_API_KEY else ""
+    backup_key = settings.BACKUP_AI_API_KEY.strip('\"\'') if settings.BACKUP_AI_API_KEY else ""
     
     keys_to_try = []
     if primary_key:
