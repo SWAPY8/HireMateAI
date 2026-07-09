@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timezone
+import logging
+
+logger = logging.getLogger("app.interviews")
 
 from app.core.database import get_db
 from app.api.auth import get_current_user
@@ -326,7 +329,6 @@ def mock_interview_chat_turn(
     
     from app.core.ai import query_gemini
     from app.core.config import settings
-    from app.core.logger import logger
     
     # Decide turn logic
     # We want a total of 8 questions from the AI
