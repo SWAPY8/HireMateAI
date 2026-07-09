@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import PageWrapper from '../../components/layout/PageWrapper';
 import api from '../../api';
@@ -24,6 +24,15 @@ const Interview = () => {
   const [questionsList, setQuestionsList] = useState([]);
   const [answersList, setAnswersList] = useState([]);
   const [evaluating, setEvaluating] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, evaluating]);
 
   useEffect(() => {
     const fetchApps = async () => {
@@ -193,7 +202,7 @@ HireMate AI Training Team`;
 
             {interviewStarted ? (
               <>
-                <div className={styles.chatBody}>
+                 <div className={styles.chatBody}>
                   {messages.map((m, idx) => (
                     <div 
                       key={idx} 
@@ -202,6 +211,13 @@ HireMate AI Training Team`;
                       <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{m.text}</pre>
                     </div>
                   ))}
+                  {evaluating && (
+                    <div className={`${styles.chatBubble} ${styles.bubbleAi}`} style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: 'var(--color-text-secondary)', padding: '0.75rem 1rem' }}>
+                      <Sparkles size={14} style={{ animation: 'spin 2.5s linear infinite' }} />
+                      <span style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>Interviewer is formulating next response...</span>
+                    </div>
+                  )}
+                  <div ref={messagesEndRef} />
                 </div>
                 
                 <form onSubmit={handleSendMessage} className={styles.chatInputArea}>
