@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timezone
 import logging
+import json
 
 logger = logging.getLogger("app.interviews")
 
@@ -289,90 +290,65 @@ def mock_interview_chat_turn(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    app = db.query(Application).filter(Application.id == req.application_id).first()
-    if not app:
-        raise HTTPException(status_code=404, detail="Application not found")
+    try:
+        # Log incoming request parameters
+        logger.info(f"[Mock Interview] Request from candidate {current_user.full_name} | Application ID: {req.application_id} | History length: {len(req.history)}")
+        logger.info(f"[Mock Interview] Incoming request body: {req.model_dump_json() if hasattr(req, 'model_dump_json') else str(req)}")
         
-    candidate = app.candidate
-    if not candidate or not candidate.resume_path:
-        raise HTTPException(
-            status_code=400,
-            detail="Please upload and analyze your resume before starting a mock interview."
-        )
-    skills = candidate.skills or "React, Python"
-    experience = candidate.experience or "Not specified"
-    education = candidate.education or "Not specified"
-    projects = candidate.projects or "Not specified"
-    certifications = candidate.certifications or "Not specified"
-    job_title = app.job.title
-    
-    # Format history text
-    history_lines = []
-    ai_questions_count = 0
-    for msg in req.history:
-        sender_label = "Candidate" if msg.sender == "user" else "Interviewer"
-        history_lines.append(f"{sender_label}: {msg.text}")
-        if msg.sender == "ai":
-            ai_questions_count += 1
+        # Validate request data details
+        if not req.application_id:
+            raise HTTPException(status_code=400, detail="Missing application_id")
+
+        app = db.query(Application).filter(Application.id == req.application_id).first()
+        if not app:
+            raise HTTPException(status_code=404, detail="Application not found")
             
-    # Prune history for chat turn prompt context to prevent token overflows
-    recent_history = req.history[-6:] if len(req.history) > 6 else req.history
-    recent_history_lines = []
-    for msg in recent_history:
-        sender_label = "Candidate" if msg.sender == "user" else "Interviewer"
-        recent_history_lines.append(f"{sender_label}: {msg.text}")
-    recent_history_text = "\n".join(recent_history_lines)
-    
-    # Collect list of questions already asked to prevent duplicate AI questions
-    questions_asked = [msg.text for msg in req.history if msg.sender == "ai"]
-    questions_asked_text = "\n".join([f"- {q}" for q in questions_asked]) if questions_asked else "None yet."
-    
-    from app.core.ai import query_gemini
-    from app.core.config import settings
-    
-    # Decide turn logic
-    # We want a total of 8 questions from the AI
-    if not req.history:
-        # First turn: Ask the first question
-        prompt = f"""
-        You are an expert technical interviewer starting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
-        This is question 1 of 8.
+        candidate = app.candidate
+        if not candidate or not candidate.resume_path:
+            raise HTTPException(
+                status_code=400,
+                detail="Please upload and analyze your resume before starting a mock interview."
+            )
+        skills = candidate.skills or "React, Python"
+        experience = candidate.experience or "Not specified"
+        education = candidate.education or "Not specified"
+        projects = candidate.projects or "Not specified"
+        certifications = candidate.certifications or "Not specified"
+        job_title = app.job.title
         
-        Candidate Details:
-        - Skills: {skills}
-        - Experience: {experience}
-        - Projects: {projects}
-        - Education: {education}
+        # Format history text
+        history_lines = []
+        ai_questions_count = 0
+        for msg in req.history:
+            sender_label = "Candidate" if msg.sender == "user" else "Interviewer"
+            history_lines.append(f"{sender_label}: {msg.text}")
+            if msg.sender == "ai":
+                ai_questions_count += 1
+                
+        history_text = "\n".join(history_lines)
         
-        Generate a short, practical technical or situational opening question tailored to the candidate's skills, projects, or education.
+        # Prune history for chat turn prompt context to prevent token overflows
+        recent_history = req.history[-6:] if len(req.history) > 6 else req.history
+        recent_history_lines = []
+        for msg in recent_history:
+            sender_label = "Candidate" if msg.sender == "user" else "Interviewer"
+            recent_history_lines.append(f"{sender_label}: {msg.text}")
+        recent_history_text = "\n".join(recent_history_lines)
         
-        Requirements:
-        - Keep the question very short and concise (2-3 lines maximum).
-        - Ask only ONE clear question. Do not include long descriptions or explanations.
-        - Difficulty must be Simple to Medium (entry-level standard). No advanced system design or complex algorithm questions.
-        - Go straight to the question. Do not include introductory text like "Sure, here is your question". Write ONLY the question.
-        """
-        question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
-        if not question:
-            raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Please verify API key.")
+        # Collect list of questions already asked to prevent duplicate AI questions
+        questions_asked = [msg.text for msg in req.history if msg.sender == "ai"]
+        questions_asked_text = "\n".join([f"- {q}" for q in questions_asked]) if questions_asked else "None yet."
         
-        final_res = {
-            "text": question.strip(),
-            "status": "ongoing",
-            "evaluation": None
-        }
-        logger.info(f"[Mock Interview] Final response sent to frontend: {json.dumps(final_res)}")
-        return final_res
-    
-    elif ai_questions_count < 8:
-        # Ask follow-up question
-        question_num = ai_questions_count + 1
+        from app.core.ai import query_gemini
+        from app.core.config import settings
         
-        if question_num <= 6:
-            # Tech / Project / Education question (Simple to Medium difficulty)
+        # Decide turn logic
+        # We want a total of 8 questions from the AI
+        if not req.history:
+            # First turn: Ask the first question
             prompt = f"""
-            You are an expert interviewer conducting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
-            This is question {question_num} of 8.
+            You are an expert technical interviewer starting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+            This is question 1 of 8.
             
             Candidate Details:
             - Skills: {skills}
@@ -380,148 +356,197 @@ def mock_interview_chat_turn(
             - Projects: {projects}
             - Education: {education}
             
-            Here is the recent conversation transcript:
-            {recent_history_text}
-            
-            Questions already asked so far (DO NOT repeat or ask variations of these):
-            {questions_asked_text}
-            
-            Based on their latest response and past answers, ask a relevant technical follow-up question or transition to another core tech stack item/project/education detail in their resume.
+            Generate a short, practical technical or situational opening question tailored to the candidate's skills, projects, or education.
             
             Requirements:
             - Keep the question very short and concise (2-3 lines maximum).
-            - Ask only ONE clear question at a time. Do not ask multiple questions or provide long descriptions.
-            - Difficulty must be Simple to Medium (entry-level standard). No advanced system design or complex algorithm questions. (Focus on practical scenarios: debugging, choosing the right tech, basic API/database issues, React state, Java OOP, Spring Boot REST APIs, SQL, JS, etc.)
-            - Avoid conversational fillers or introductory text. Write ONLY the question.
+            - Ask only ONE clear question. Do not include long descriptions or explanations.
+            - Difficulty must be Simple to Medium (entry-level standard). No advanced system design or complex algorithm questions.
+            - Go straight to the question. Do not include introductory text like "Sure, here is your question". Write ONLY the question.
             """
-        else:
-            # HR question (7-8)
-            prompt = f"""
-            You are an expert interviewer conducting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
-            This is question {question_num} of 8. This must be an HR / Behavioral question.
+            question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
+            if not question:
+                raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Please verify API key.")
             
-            Here is the recent conversation transcript:
-            {recent_history_text}
-            
-            Questions already asked so far (DO NOT repeat or ask variations of these):
-            {questions_asked_text}
-            
-            Based on their latest response and past answers, ask a relevant HR behavioral question (e.g. teamwork, strengths, conflict resolution, career goals, handling deadlines).
-            
-            Requirements:
-            - Keep the question very short and concise (2-3 lines maximum).
-            - Ask only ONE clear question. Do not ask multiple questions.
-            - Avoid conversational fillers or introductory text. Write ONLY the question.
-            """
-            
-        question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
-        if not question:
-            raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Please verify API key.")
-        
-        final_res = {
-            "text": question.strip(),
-            "status": "ongoing",
-            "evaluation": None
-        }
-        logger.info(f"[Mock Interview] Final response sent to frontend: {json.dumps(final_res)}")
-        return final_res
-        
-    else:
-        # Interview is complete (user has answered the 8th question)
-        # Generate full evaluation report
-        prompt = f"""
-        You are an expert technical interviewer evaluating candidate {current_user.full_name} for the role '{job_title}'.
-        
-        Candidate Details:
-        - Skills: {skills}
-        
-        Here is the full interview transcript:
-        {history_text}
-        
-        Generate a detailed performance evaluation report of their responses.
-        
-        Provide the response as a JSON object with the following fields:
-        1. "score": Overall score out of 100 as integer.
-        2. "technical_knowledge": Rating/feedback statement on their technical competence.
-        3. "communication": Rating/feedback statement on their communication capability.
-        4. "confidence": Rating/feedback statement on their confidence and response style.
-        5. "problem_solving": Rating/feedback statement on their logical problem-solving approach.
-        6. "strengths": A list of 3 strengths.
-        7. "weaknesses": A list of 2-3 weaknesses.
-        8. "suggested_improvements": A list of 3 action items to improve.
-        9. "recommended_resources": A list of 3-4 specific articles, books, or courses.
-        10. "hiring_recommendation": Fit assessment ("Strong Hire", "Hire", "Borderline", "No Hire").
-        
-        Ensure you only return valid JSON. Do not prefix with markdown formatting.
-        """
-        
-        try:
-            logger.info("[Mock Interview] Requesting final evaluation report from Gemini.")
-            raw_res = query_gemini(prompt, json_mode=True, api_key=settings.CANDIDATE_AI_API_KEY)
-            
-            if not raw_res:
-                raise ValueError("Empty response returned from Gemini evaluator.")
-                
-            parsed = json.loads(raw_res)
-            
-            # Validate keys, fallback defaults if missing
-            try:
-                parsed["score"] = int(parsed.get("score", 75))
-            except:
-                parsed["score"] = 75
-                
-            required_keys = ["technical_knowledge", "communication", "confidence", "problem_solving", 
-                             "strengths", "weaknesses", "suggested_improvements", "recommended_resources", 
-                             "hiring_recommendation"]
-            for rk in required_keys:
-                if rk not in parsed:
-                    raise KeyError(f"Missing required key in AI response: {rk}")
-                    
-            logger.info("[Mock Interview] AI evaluation report parsed successfully.")
-            
-        except Exception as eval_exc:
-            logger.error(f"[Mock Interview] Evaluation generation failed: {str(eval_exc)}")
-            if 'raw_res' in locals():
-                logger.debug(f"[Mock Interview] Raw AI response was: {raw_res}")
-                
-            # Graceful local fallback to prevent 502/crashes
-            logger.info("[Mock Interview] Generating graceful fallback interview summary.")
-            parsed = {
-                "score": 72,
-                "technical_knowledge": "Demonstrated a sound understanding of core technical principles. Recommended to practice coding syntax and design patterns under constraints.",
-                "communication": "Answered questions clearly and maintained a professional conversation flow.",
-                "confidence": "Stood confident during the technical and behavioral portions.",
-                "problem_solving": "Approached programming and scenario scenarios systematically.",
-                "strengths": [
-                    "Solid fundamentals in core technologies",
-                    "Clear communication style",
-                    "Structured approach to problem solving"
-                ],
-                "weaknesses": [
-                    "Could expand more on project impact details",
-                    "Scenario optimizations could be deeper"
-                ],
-                "suggested_improvements": [
-                    "Use the STAR method for behavioral questions.",
-                    "Review framework life-cycle and performance tuning guidelines.",
-                    "Practice explaining logic while debugging."
-                ],
-                "recommended_resources": [
-                    "LeetCode / HackerRank interactive practice",
-                    "System Design Primer guide online",
-                    "MDN Web Docs / Framework documentation references"
-                ],
-                "hiring_recommendation": "Hire"
+            final_res = {
+                "text": question.strip(),
+                "status": "ongoing",
+                "evaluation": None
             }
-            
-        # Save the evaluation to the application's feedback and change status
-        app.feedback = f"Mock Interview Recommendation: {parsed.get('hiring_recommendation')} (Score: {parsed['score']}/100).\nDetails: {parsed.get('technical_knowledge')}"
-        db.commit()
+            logger.info(f"[Mock Interview] Final response sent to frontend: {json.dumps(final_res)}")
+            return final_res
         
-        final_res = {
-            "text": "Thank you for completing the interview! Your report is ready.",
-            "status": "completed",
-            "evaluation": parsed
-        }
-        logger.info(f"[Mock Interview] Final response sent to frontend: {json.dumps(final_res)}")
-        return final_res
+        elif ai_questions_count < 8:
+            # Ask follow-up question
+            question_num = ai_questions_count + 1
+            
+            if question_num <= 6:
+                # Tech / Project / Education question (Simple to Medium difficulty)
+                prompt = f"""
+                You are an expert interviewer conducting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+                This is question {question_num} of 8.
+                
+                Candidate Details:
+                - Skills: {skills}
+                - Experience: {experience}
+                - Projects: {projects}
+                - Education: {education}
+                
+                Here is the recent conversation transcript:
+                {recent_history_text}
+                
+                Questions already asked so far (DO NOT repeat or ask variations of these):
+                {questions_asked_text}
+                
+                Based on their latest response and past answers, ask a relevant technical follow-up question or transition to another core tech stack item/project/education detail in their resume.
+                
+                Requirements:
+                - Keep the question very short and concise (2-3 lines maximum).
+                - Ask only ONE clear question at a time. Do not ask multiple questions or provide long descriptions.
+                - Difficulty must be Simple to Medium (entry-level standard). No advanced system design or complex algorithm questions. (Focus on practical scenarios: debugging, choosing the right tech, basic API/database issues, React state, Java OOP, Spring Boot REST APIs, SQL, JS, etc.)
+                - Avoid conversational fillers or introductory text. Write ONLY the question.
+                """
+            else:
+                # HR question (7-8)
+                prompt = f"""
+                You are an expert interviewer conducting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+                This is question {question_num} of 8. This must be an HR / Behavioral question.
+                
+                Here is the recent conversation transcript:
+                {recent_history_text}
+                
+                Questions already asked so far (DO NOT repeat or ask variations of these):
+                {questions_asked_text}
+                
+                Based on their latest response and past answers, ask a relevant HR behavioral question (e.g. teamwork, strengths, conflict resolution, career goals, handling deadlines).
+                
+                Requirements:
+                - Keep the question very short and concise (2-3 lines maximum).
+                - Ask only ONE clear question. Do not ask multiple questions.
+                - Avoid conversational fillers or introductory text. Write ONLY the question.
+                """
+                
+            question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
+            if not question:
+                raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Please verify API key.")
+            
+            final_res = {
+                "text": question.strip(),
+                "status": "ongoing",
+                "evaluation": None
+            }
+            logger.info(f"[Mock Interview] Final response sent to frontend: {json.dumps(final_res)}")
+            return final_res
+            
+        else:
+            # Interview is complete (user has answered the 8th question)
+            # Generate full evaluation report
+            prompt = f"""
+            You are an expert technical interviewer evaluating candidate {current_user.full_name} for the role '{job_title}'.
+            
+            Candidate Details:
+            - Skills: {skills}
+            
+            Here is the full interview transcript:
+            {history_text}
+            
+            Generate a detailed performance evaluation report of their responses.
+            
+            Provide the response as a JSON object with the following fields:
+            1. "score": Overall score out of 100 as integer.
+            2. "technical_knowledge": Rating/feedback statement on their technical competence.
+            3. "communication": Rating/feedback statement on their communication capability.
+            4. "confidence": Rating/feedback statement on their confidence and response style.
+            5. "problem_solving": Rating/feedback statement on their logical problem-solving approach.
+            6. "strengths": A list of 3 strengths.
+            7. "weaknesses": A list of 2-3 weaknesses.
+            8. "suggested_improvements": A list of 3 action items to improve.
+            9. "recommended_resources": A list of 3-4 specific articles, books, or courses.
+            10. "hiring_recommendation": Fit assessment ("Strong Hire", "Hire", "Borderline", "No Hire").
+            
+            Ensure you only return valid JSON. Do not prefix with markdown formatting.
+            """
+            
+            try:
+                logger.info("[Mock Interview] Requesting final evaluation report from Gemini.")
+                raw_res = query_gemini(prompt, json_mode=True, api_key=settings.CANDIDATE_AI_API_KEY)
+                
+                if not raw_res:
+                    raise ValueError("Empty response returned from Gemini evaluator.")
+                    
+                parsed = json.loads(raw_res)
+                
+                # Validate keys, fallback defaults if missing
+                try:
+                    parsed["score"] = int(parsed.get("score", 75))
+                except:
+                    parsed["score"] = 75
+                    
+                required_keys = ["technical_knowledge", "communication", "confidence", "problem_solving", 
+                                 "strengths", "weaknesses", "suggested_improvements", "recommended_resources", 
+                                 "hiring_recommendation"]
+                for rk in required_keys:
+                    if rk not in parsed:
+                        raise KeyError(f"Missing required key in AI response: {rk}")
+                        
+                logger.info("[Mock Interview] AI evaluation report parsed successfully.")
+                
+            except Exception as eval_exc:
+                logger.error(f"[Mock Interview] Evaluation generation failed: {str(eval_exc)}")
+                if 'raw_res' in locals():
+                    logger.debug(f"[Mock Interview] Raw AI response was: {raw_res}")
+                    
+                # Graceful local fallback to prevent 502/crashes
+                logger.info("[Mock Interview] Generating graceful fallback interview summary.")
+                parsed = {
+                    "score": 72,
+                    "technical_knowledge": "Demonstrated a sound understanding of core technical principles. Recommended to practice coding syntax and design patterns under constraints.",
+                    "communication": "Answered questions clearly and maintained a professional conversation flow.",
+                    "confidence": "Stood confident during the technical and behavioral portions.",
+                    "problem_solving": "Approached programming and scenario scenarios systematically.",
+                    "strengths": [
+                        "Solid fundamentals in core technologies",
+                        "Clear communication style",
+                        "Structured approach to problem solving"
+                    ],
+                    "weaknesses": [
+                        "Could expand more on project impact details",
+                        "Scenario optimizations could be deeper"
+                    ],
+                    "suggested_improvements": [
+                        "Use the STAR method for behavioral questions.",
+                        "Review framework life-cycle and performance tuning guidelines.",
+                        "Practice explaining logic while debugging."
+                    ],
+                    "recommended_resources": [
+                        "LeetCode / HackerRank interactive practice",
+                        "System Design Primer guide online",
+                        "MDN Web Docs / Framework documentation references"
+                    ],
+                    "hiring_recommendation": "Hire"
+                }
+                
+            # Save the evaluation to the application's feedback and change status
+            app.feedback = f"Mock Interview Recommendation: {parsed.get('hiring_recommendation')} (Score: {parsed['score']}/100).\nDetails: {parsed.get('technical_knowledge')}"
+            db.commit()
+            
+            final_res = {
+                "text": "Thank you for completing the interview! Your report is ready.",
+                "status": "completed",
+                "evaluation": parsed
+            }
+            logger.info(f"[Mock Interview] Final response sent to frontend: {json.dumps(final_res)}")
+            return final_res
+            
+    except HTTPException as he:
+        raise he
+    except Exception as exc:
+        logger.exception(f"[Mock Interview] Unhandled exception occurred: {str(exc)}")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "success": False,
+                "message": "An unexpected error occurred during the mock interview process.",
+                "error": str(exc)
+            }
+        )
