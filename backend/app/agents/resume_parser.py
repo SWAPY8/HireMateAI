@@ -50,7 +50,7 @@ class ResumeParser:
         return text
 
     @staticmethod
-    def parse(filename: str, file_content: bytes = b"") -> dict:
+    def parse(filename: str, file_content: bytes = b"", api_key: str = None) -> dict:
         text = ResumeParser.extract_text(filename, file_content)
         
         # Highly detailed prompt for extraction and parsing
@@ -112,7 +112,7 @@ class ResumeParser:
         """
         
         logger.info(f"Parsing resume {filename} with Gemini API...")
-        raw_res = query_gemini(prompt, json_mode=True)
+        raw_res = query_gemini(prompt, json_mode=True, api_key=api_key)
         
         fallback = {
             "name": filename.split(".")[0].replace("_", " ").replace("-", " ").title(),

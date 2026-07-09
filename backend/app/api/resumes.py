@@ -64,9 +64,31 @@ async def upload_resume(
     # Reset read pointer
     await file.seek(0)
     
-    # Parse resume using parser agent
+    import json
+
+    def coerce_to_string(val) -> str:
+        if val is None:
+            return ""
+        if isinstance(val, (list, dict)):
+            return format_list_or_objects(val)
+        return str(val)
+
+    def coerce_to_json_string(val) -> str:
+        if val is None:
+            return "[]"
+        if isinstance(val, str):
+            try:
+                json.loads(val)
+                return val
+            except:
+                return json.dumps([val] if val.strip() else [])
+        if isinstance(val, (list, dict)):
+            return json.dumps(val)
+        return json.dumps([str(val)])
+
+    # Parse resume using parser agent with the dedicated candidate API key
     try:
-        parsed_data = ResumeParser.parse(file.filename, content)
+        parsed_data = ResumeParser.parse(file.filename, content, api_key=settings.CANDIDATE_AI_API_KEY)
     except HTTPException as he:
         raise he
     except Exception as e:
@@ -78,40 +100,39 @@ async def upload_resume(
     
     # Update candidate profile with parsed info
     profile.resume_path = file_path
-    profile.resume_text = parsed_data.get("raw_text", "")
-    profile.bio = parsed_data.get("summary", "")
-    profile.skills = parsed_data.get("skills", "")
+    profile.resume_text = coerce_to_string(parsed_data.get("raw_text", ""))
+    profile.bio = coerce_to_string(parsed_data.get("summary", ""))
+    profile.skills = coerce_to_string(parsed_data.get("skills", ""))
     profile.experience = format_list_or_objects(parsed_data.get("experience") or parsed_data.get("internships"))
     profile.education = format_list_or_objects(parsed_data.get("education"))
-    profile.linkedin_url = parsed_data.get("linkedin", "")
-    profile.portfolio_url = parsed_data.get("portfolio", "")
-    profile.phone = parsed_data.get("phone", "")
-    profile.location = parsed_data.get("location", "")
-    profile.dob = parsed_data.get("dob", "")
-    profile.github_url = parsed_data.get("github", "")
+    profile.linkedin_url = coerce_to_string(parsed_data.get("linkedin", ""))
+    profile.portfolio_url = coerce_to_string(parsed_data.get("portfolio", ""))
+    profile.phone = coerce_to_string(parsed_data.get("phone", ""))
+    profile.location = coerce_to_string(parsed_data.get("location", ""))
+    profile.dob = coerce_to_string(parsed_data.get("dob", ""))
+    profile.github_url = coerce_to_string(parsed_data.get("github", ""))
     profile.projects = format_list_or_objects(parsed_data.get("projects"))
     profile.certifications = format_list_or_objects(parsed_data.get("certifications"))
-    profile.preferred_role = parsed_data.get("preferred_role", "")
-    profile.expected_salary = parsed_data.get("expected_salary", "")
-    profile.preferred_location = parsed_data.get("preferred_location", "")
-    profile.work_preference = parsed_data.get("work_preference", "Remote")
-    profile.notice_period = parsed_data.get("notice_period", "")
+    profile.preferred_role = coerce_to_string(parsed_data.get("preferred_role", ""))
+    profile.expected_salary = coerce_to_string(parsed_data.get("expected_salary", ""))
+    profile.preferred_location = coerce_to_string(parsed_data.get("preferred_location", ""))
+    profile.work_preference = coerce_to_string(parsed_data.get("work_preference", "Remote"))
+    profile.notice_period = coerce_to_string(parsed_data.get("notice_period", ""))
     
     # Save parsed resume ATS analytics fields
-    import json
     profile.ats_score = parsed_data.get("ats_score", 70)
     profile.resume_quality_score = parsed_data.get("resume_quality_score", 65)
-    profile.keyword_match = parsed_data.get("keyword_match", "Good fit keywords.")
-    profile.missing_skills = json.dumps(parsed_data.get("missing_skills", []))
-    profile.skill_gap_analysis = parsed_data.get("skill_gap_analysis", "")
-    profile.formatting_issues = json.dumps(parsed_data.get("formatting_issues", []))
-    profile.quantifiable_achievement_suggestions = json.dumps(parsed_data.get("quantifiable_achievement_suggestions", []))
-    profile.recruiter_impression = parsed_data.get("recruiter_impression", "")
-    profile.salary_estimate = parsed_data.get("salary_estimate", "")
+    profile.keyword_match = coerce_to_string(parsed_data.get("keyword_match", "Good fit keywords."))
+    profile.missing_skills = coerce_to_json_string(parsed_data.get("missing_skills", []))
+    profile.skill_gap_analysis = coerce_to_string(parsed_data.get("skill_gap_analysis", ""))
+    profile.formatting_issues = coerce_to_json_string(parsed_data.get("formatting_issues", []))
+    profile.quantifiable_achievement_suggestions = coerce_to_json_string(parsed_data.get("quantifiable_achievement_suggestions", []))
+    profile.recruiter_impression = coerce_to_string(parsed_data.get("recruiter_impression", ""))
+    profile.salary_estimate = coerce_to_string(parsed_data.get("salary_estimate", ""))
     profile.interview_readiness_score = parsed_data.get("interview_readiness_score", 70)
-    profile.improvement_roadmap = parsed_data.get("improvement_roadmap", "")
-    profile.strengths = json.dumps(parsed_data.get("strongest_sections", []))
-    profile.weaknesses = json.dumps(parsed_data.get("weakest_sections", []))
+    profile.improvement_roadmap = coerce_to_string(parsed_data.get("improvement_roadmap", ""))
+    profile.strengths = coerce_to_json_string(parsed_data.get("strongest_sections", []))
+    profile.weaknesses = coerce_to_json_string(parsed_data.get("weakest_sections", []))
     
     # Update user's name
     if parsed_data.get("name"):
@@ -126,7 +147,7 @@ async def upload_resume(
             "Ensure your experience section lists roles in reverse chronological order with clear dates."
         ]
         
-    profile.suggestions = json.dumps(improvement_suggestions)
+    profile.suggestions = coerce_to_json_string(improvement_suggestions)
         
     db.commit()
     db.refresh(profile)

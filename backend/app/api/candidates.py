@@ -100,8 +100,9 @@ def apply_to_job(
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
         
-    # Run ATS analysis
-    analysis = ATSAnalyzer.analyze(profile.skills, job.requirements)
+    # Run ATS analysis using Candidate API key
+    from app.core.config import settings
+    analysis = ATSAnalyzer.analyze(profile.skills, job.requirements, api_key=settings.CANDIDATE_AI_API_KEY)
     
     # Create application
     db_app = Application(

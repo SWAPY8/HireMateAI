@@ -185,7 +185,7 @@ HireMate AI Team`;
               <span>Upload Resume Document</span>
             </h2>
 
-            {error && <div className="founder_errorMessage__3HlQ_" style={{ marginBottom: '1rem' }}>{error}</div>}
+            {error && <div className="errorMessage">{error}</div>}
 
             <div className={styles.uploadBox}>
               <input 

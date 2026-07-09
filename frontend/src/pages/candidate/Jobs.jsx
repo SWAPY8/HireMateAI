@@ -100,7 +100,7 @@ const Jobs = () => {
       {loading ? (
         <div className="loadingSpinner">Loading job listings...</div>
       ) : error ? (
-        <div className="founder_errorMessage__3HlQ_">{error}</div>
+        <div className="errorMessage">{error}</div>
       ) : filteredJobs.length === 0 ? (
         <div className="glass-card" style={{ textAlign: 'center', padding: '3rem' }}>
           <Building size={42} style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem' }} />

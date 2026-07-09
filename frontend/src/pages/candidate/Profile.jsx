@@ -108,7 +108,7 @@ const Profile = () => {
       {loading ? (
         <div className="loadingSpinner">Loading profile...</div>
       ) : error ? (
-        <div className="founder_errorMessage__3HlQ_">{error}</div>
+        <div className="errorMessage">{error}</div>
       ) : (
         <div className={styles.profileGrid} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
           <form onSubmit={handleSaveProfile} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

@@ -3,7 +3,7 @@ from app.core.ai import query_gemini
 
 class ATSAnalyzer:
     @staticmethod
-    def analyze(resume_skills: str, jd_requirements: str) -> dict:
+    def analyze(resume_skills: str, jd_requirements: str, api_key: str = None) -> dict:
         if not resume_skills or not jd_requirements:
             return {
                 "score": 50.0,
@@ -30,7 +30,7 @@ class ATSAnalyzer:
         Ensure you only return valid JSON. Do not prefix with markdown formatting.
         """
         
-        raw_res = query_gemini(prompt, json_mode=True)
+        raw_res = query_gemini(prompt, json_mode=True, api_key=api_key)
         fallback = {
             "score": 50.0,
             "matching_skills": [],

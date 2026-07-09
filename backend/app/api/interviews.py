@@ -206,7 +206,8 @@ def start_mock_interview(
     """
     
     from app.core.ai import query_gemini
-    raw_res = query_gemini(prompt, json_mode=True)
+    from app.core.config import settings
+    raw_res = query_gemini(prompt, json_mode=True, api_key=settings.CANDIDATE_AI_API_KEY)
     fallback = [
         f"Can you describe a challenging project you built using {skills.split(',')[0] if skills else 'your core skills'}?",
         f"How do you ensure code quality and handle system scaling for a {job_title} role?",
@@ -258,7 +259,8 @@ def evaluate_mock_interview(
     """
     
     from app.core.ai import query_gemini
-    raw_res = query_gemini(prompt, json_mode=True)
+    from app.core.config import settings
+    raw_res = query_gemini(prompt, json_mode=True, api_key=settings.CANDIDATE_AI_API_KEY)
     fallback = {
         "score": 75,
         "summary": "Completed mock interview loop. Responses show general knowledge but could use more detail.",
@@ -313,6 +315,7 @@ def mock_interview_chat_turn(
     history_text = "\n".join(history_lines)
     
     from app.core.ai import query_gemini
+    from app.core.config import settings
     
     # Decide turn logic
     # We want a total of 4 questions from the AI
@@ -331,7 +334,7 @@ def mock_interview_chat_turn(
         Generate the first technical or situational interview question tailored to their skills and projects. 
         Keep your response brief and go straight to the question. Do not include introductory text like "Sure, here is your question".
         """
-        question = query_gemini(prompt)
+        question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
         if not question:
             raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Please verify API key.")
         return {
@@ -356,7 +359,7 @@ def mock_interview_chat_turn(
         Based on their latest response and past answers, ask a relevant technical follow-up question or transition to another core tech stack item in their resume.
         Keep the question challenging and specific. Do not write conversational fillers. Write ONLY the question.
         """
-        question = query_gemini(prompt)
+        question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
         if not question:
             raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Please verify API key.")
         return {
@@ -394,7 +397,7 @@ def mock_interview_chat_turn(
         Ensure you only return valid JSON. Do not prefix with markdown formatting.
         """
         
-        raw_res = query_gemini(prompt, json_mode=True)
+        raw_res = query_gemini(prompt, json_mode=True, api_key=settings.CANDIDATE_AI_API_KEY)
         if not raw_res:
             raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Evaluation failed.")
             

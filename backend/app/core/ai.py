@@ -9,20 +9,28 @@ from app.core.config import settings
 
 logger = logging.getLogger("app.ai")
 
-def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-flash", max_retries: int = 3) -> str:
+from typing import Optional
+
+def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-flash", max_retries: int = 3, api_key: Optional[str] = None) -> str:
     """
     Sends a request to the Google Gemini developer API.
     Uses direct REST API endpoints via urllib to support clean Python 3.13 deployments.
     Implements robust error handling, exponential backoff, and backup API key failover.
     """
-    primary_key = settings.AI_API_KEY.strip('\"\'') if settings.AI_API_KEY else ""
-    backup_key = settings.BACKUP_AI_API_KEY.strip('\"\'') if settings.BACKUP_AI_API_KEY else ""
-    
     keys_to_try = []
-    if primary_key:
-        keys_to_try.append(primary_key)
-    if backup_key:
-        keys_to_try.append(backup_key)
+    
+    if api_key:
+        api_key_stripped = api_key.strip('\"\'')
+        if api_key_stripped:
+            keys_to_try.append(api_key_stripped)
+            
+    if not keys_to_try:
+        primary_key = settings.AI_API_KEY.strip('\"\'') if settings.AI_API_KEY else ""
+        backup_key = settings.BACKUP_AI_API_KEY.strip('\"\'') if settings.BACKUP_AI_API_KEY else ""
+        if primary_key:
+            keys_to_try.append(primary_key)
+        if backup_key:
+            keys_to_try.append(backup_key)
         
     if not keys_to_try:
         logger.error("[Gemini Core] No Gemini API keys are configured in environment variables.")
