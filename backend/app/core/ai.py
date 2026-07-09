@@ -57,8 +57,11 @@ def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-
         }
 
     data_bytes = json.dumps(payload).encode("utf-8")
+    payload_size = len(data_bytes)
+    token_estimate = len(prompt) // 4  # 1 token is roughly 4 characters
+    logger.info(f"[Gemini Core] Request payload size: {payload_size} bytes | Estimated tokens: {token_estimate}")
+    
     ssl_context = ssl._create_unverified_context()
-
     last_error = "No requests made yet."
 
     for key_idx, api_key in enumerate(keys_to_try):
@@ -68,6 +71,7 @@ def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-
         logger.info(f"[Gemini Core] Attempting API call using {key_label} API key.")
         
         for attempt in range(1, max_retries + 1):
+            start_time = time.time()
             try:
                 req = urllib.request.Request(url, data=data_bytes, headers=headers, method="POST")
                 with urllib.request.urlopen(req, context=ssl_context, timeout=30) as response:
@@ -84,15 +88,16 @@ def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-
                         raise ValueError("Empty response parts returned from Gemini.")
                     
                     text_out = parts[0].get("text", "")
-                    # Log success
-                    logger.info(f"[Gemini Core] Successful request using {key_label} API key.")
+                    duration = time.time() - start_time
+                    logger.info(f"[Gemini Core] Successful request using {key_label} API key. Response time: {duration:.2f}s")
                     return text_out.strip()
                     
             except urllib.error.HTTPError as he:
                 status_code = he.code
                 err_msg = he.read().decode("utf-8", errors="ignore")
-                logger.warning(
-                    f"[Gemini Core] HTTP Error {status_code} on {key_label} key (Attempt {attempt}/{max_retries}): {err_msg}"
+                duration = time.time() - start_time
+                logger.error(
+                    f"[Gemini Core] HTTP Error {status_code} on {key_label} key (Attempt {attempt}/{max_retries}) [Time: {duration:.2f}s]: {err_msg}"
                 )
                 last_error = f"HTTP Error {status_code}: {err_msg}"
                 
@@ -113,16 +118,18 @@ def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-
                 
             except urllib.error.URLError as ue:
                 # E.g. network timeout or connection issue
-                logger.warning(
-                    f"[Gemini Core] Network Error on {key_label} key (Attempt {attempt}/{max_retries}): {ue.reason}"
+                duration = time.time() - start_time
+                logger.error(
+                    f"[Gemini Core] Network Error on {key_label} key (Attempt {attempt}/{max_retries}) [Time: {duration:.2f}s]: {ue.reason}"
                 )
                 last_error = f"Network Error: {ue.reason}"
                 backoff_sec = 2.0 * attempt
                 time.sleep(backoff_sec)
                 
             except Exception as e:
-                logger.warning(
-                    f"[Gemini Core] Request Exception on {key_label} key (Attempt {attempt}/{max_retries}): {str(e)}"
+                duration = time.time() - start_time
+                logger.error(
+                    f"[Gemini Core] Request Exception on {key_label} key (Attempt {attempt}/{max_retries}) [Time: {duration:.2f}s]: {str(e)}"
                 )
                 last_error = str(e)
                 time.sleep(1.5 * attempt)
