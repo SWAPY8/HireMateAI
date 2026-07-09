@@ -318,21 +318,26 @@ def mock_interview_chat_turn(
     from app.core.config import settings
     
     # Decide turn logic
-    # We want a total of 4 questions from the AI
+    # We want a total of 8 questions from the AI
     if not req.history:
         # First turn: Ask the first question
         prompt = f"""
-        You are an expert technical interviewer. Start a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+        You are an expert technical interviewer starting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+        This is question 1 of 8.
         
         Candidate Details:
         - Skills: {skills}
         - Experience: {experience}
         - Projects: {projects}
         - Education: {education}
-        - Certifications: {certifications}
         
-        Generate the first technical or situational interview question tailored to their skills and projects. 
-        Keep your response brief and go straight to the question. Do not include introductory text like "Sure, here is your question".
+        Generate a short, practical technical or situational opening question tailored to the candidate's skills, projects, or education.
+        
+        Requirements:
+        - Keep the question very short and concise (2-3 lines maximum).
+        - Ask only ONE clear question. Do not include long descriptions or explanations.
+        - Difficulty must be Simple to Medium (entry-level standard). No advanced system design or complex algorithm questions.
+        - Go straight to the question. Do not include introductory text like "Sure, here is your question". Write ONLY the question.
         """
         question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
         if not question:
@@ -343,22 +348,50 @@ def mock_interview_chat_turn(
             "evaluation": None
         }
     
-    elif ai_questions_count < 4:
+    elif ai_questions_count < 8:
         # Ask follow-up question
-        prompt = f"""
-        You are an expert technical interviewer conducting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+        question_num = ai_questions_count + 1
         
-        Candidate Details:
-        - Skills: {skills}
-        - Experience: {experience}
-        - Projects: {projects}
-        
-        Here is the chat transcript so far:
-        {history_text}
-        
-        Based on their latest response and past answers, ask a relevant technical follow-up question or transition to another core tech stack item in their resume.
-        Keep the question challenging and specific. Do not write conversational fillers. Write ONLY the question.
-        """
+        if question_num <= 6:
+            # Tech / Project / Education question (Simple to Medium difficulty)
+            prompt = f"""
+            You are an expert interviewer conducting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+            This is question {question_num} of 8.
+            
+            Candidate Details:
+            - Skills: {skills}
+            - Experience: {experience}
+            - Projects: {projects}
+            - Education: {education}
+            
+            Here is the chat transcript so far:
+            {history_text}
+            
+            Based on their latest response and past answers, ask a relevant technical follow-up question or transition to another core tech stack item/project/education detail in their resume.
+            
+            Requirements:
+            - Keep the question very short and concise (2-3 lines maximum).
+            - Ask only ONE clear question at a time. Do not ask multiple questions or provide long descriptions.
+            - Difficulty must be Simple to Medium (entry-level standard). No advanced system design or complex algorithm questions. (Focus on practical scenarios: debugging, choosing the right tech, basic API/database issues, React state, Java OOP, Spring Boot REST APIs, SQL, JS, etc.)
+            - Avoid conversational fillers or introductory text. Write ONLY the question.
+            """
+        else:
+            # HR question (7-8)
+            prompt = f"""
+            You are an expert interviewer conducting a mock interview for the role '{job_title}' with candidate {current_user.full_name}.
+            This is question {question_num} of 8. This must be an HR / Behavioral question.
+            
+            Here is the chat transcript so far:
+            {history_text}
+            
+            Based on their latest response and past answers, ask a relevant HR behavioral question (e.g. teamwork, strengths, conflict resolution, career goals, handling deadlines).
+            
+            Requirements:
+            - Keep the question very short and concise (2-3 lines maximum).
+            - Ask only ONE clear question. Do not ask multiple questions.
+            - Avoid conversational fillers or introductory text. Write ONLY the question.
+            """
+            
         question = query_gemini(prompt, api_key=settings.CANDIDATE_AI_API_KEY)
         if not question:
             raise HTTPException(status_code=503, detail="AI Service is currently unavailable. Please verify API key.")
@@ -369,7 +402,7 @@ def mock_interview_chat_turn(
         }
         
     else:
-        # Interview is complete (user has answered the 4th question)
+        # Interview is complete (user has answered the 8th question)
         # Generate full evaluation report
         prompt = f"""
         You are an expert technical interviewer evaluating candidate {current_user.full_name} for the role '{job_title}'.
@@ -380,7 +413,7 @@ def mock_interview_chat_turn(
         Here is the full interview transcript:
         {history_text}
         
-        Generate a detailed performance evaluation report.
+        Generate a detailed performance evaluation report of their responses.
         
         Provide the response as a JSON object with the following fields:
         1. "score": Overall score out of 100 as integer.
