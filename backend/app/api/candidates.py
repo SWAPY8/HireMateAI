@@ -21,7 +21,7 @@ def get_all_candidates_for_founder(
     if current_user.role != "founder":
         raise HTTPException(status_code=403, detail="Only founders can view the candidates database.")
         
-    query = db.query(Application)
+    query = db.query(Application).join(Job, Application.job_id == Job.id).filter(Job.founder_id == current_user.id)
     if job_id:
         query = query.filter(Application.job_id == job_id)
         
