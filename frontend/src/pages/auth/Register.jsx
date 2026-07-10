@@ -69,7 +69,7 @@ const Register = () => {
                 onClick={() => setRole('candidate')}
               >
                 <User size={22} />
-                <span>Job Candidate</span>
+                <span>Candidate</span>
               </div>
             </div>
           </div>
@@ -82,7 +82,7 @@ const Register = () => {
                 id="fullName"
                 type="text"
                 className="form-input"
-                placeholder="Jane Doe"
+                placeholder="Dipak Sharma"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required

@@ -167,6 +167,9 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--color-dark-hover);
 }
 
+.whiteInput {
+  background-color: white !important;
+}
 .badge {
   display: inline-flex;
   align-items: center;
