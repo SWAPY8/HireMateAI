@@ -108,7 +108,8 @@ Required skills: Figma, Design Systems, Typography, Framer, User Testing.""",
             experience="Frontend Dev at StartupStudio (2 years) - Refactored legacy UI components leading to a 30% reduction in bundle size.",
             education="B.S. in Computer Science, State University",
             linkedin_url="https://linkedin.com/in/johndoe",
-            portfolio_url="https://github.com/johndoe"
+            portfolio_url="https://github.com/johndoe",
+            resume_path="uploads/dummy_resume.pdf"
         )
         db.add(profile1)
 
@@ -119,7 +120,8 @@ Required skills: Figma, Design Systems, Typography, Framer, User Testing.""",
             experience="Backend Dev at FintechGroup (3 years) - Built and deployed multi-tenant credit transaction microservices using container pipelines.",
             education="M.S. in Software Systems, Georgia Tech",
             linkedin_url="https://linkedin.com/in/sarahjenkins",
-            portfolio_url="https://github.com/sarahjenkins"
+            portfolio_url="https://github.com/sarahjenkins",
+            resume_path="uploads/dummy_resume.pdf"
         )
         db.add(profile2)
 
@@ -130,7 +132,8 @@ Required skills: Figma, Design Systems, Typography, Framer, User Testing.""",
             experience="UI Designer at CreativeStudio (1.5 years) - Collaborated on building 10+ web portfolios and company design tokens.",
             education="BFA in Graphic Design, RISD",
             linkedin_url="https://linkedin.com/in/robertkincaid",
-            portfolio_url="https://behance.net/robertkincaid"
+            portfolio_url="https://behance.net/robertkincaid",
+            resume_path="uploads/dummy_resume.pdf"
         )
         db.add(profile3)
         

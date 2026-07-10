@@ -80,7 +80,7 @@ def query_groq(prompt: str, json_mode: bool = False, max_retries: int = 3) -> st
 
     raise ValueError(f"Groq API call failed after {max_retries} attempts. Last error: {last_error}")
 
-def _execute_gemini_query(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-flash", max_retries: int = 3, api_key: Optional[str] = None) -> str:
+def _execute_gemini_query(prompt: str, json_mode: bool = False, model: str = "gemini-1.5-flash", max_retries: int = 3, api_key: Optional[str] = None) -> str:
     """
     Underlying query executor for Google Gemini endpoints.
     """
@@ -195,7 +195,7 @@ def _execute_gemini_query(prompt: str, json_mode: bool = False, model: str = "ge
 
     raise ValueError(f"Gemini API call failed after exhaustion of all keys. Last error: {last_error}")
 
-def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-2.5-flash", max_retries: int = 3, api_key: Optional[str] = None) -> str:
+def query_gemini(prompt: str, json_mode: bool = False, model: str = "gemini-1.5-flash", max_retries: int = 3, api_key: Optional[str] = None) -> str:
     """
     Sends a request to the configured AI API.
     Routes between Gemini and Groq based on configuration and implements fallback mechanics.
