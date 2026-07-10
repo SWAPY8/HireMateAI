@@ -56,6 +56,37 @@ const Pipeline = () => {
     }
   };
 
+  const handleDragStart = (e, appId) => {
+    e.dataTransfer.setData("applicationId", appId.toString());
+  };
+
+  const handleDrop = async (e, targetStatus) => {
+    e.preventDefault();
+    const appIdStr = e.dataTransfer.getData("applicationId");
+    if (!appIdStr) return;
+    const appId = parseInt(appIdStr);
+    
+    const app = applications.find(a => a.id === appId);
+    if (!app || app.status === targetStatus) return;
+
+    try {
+      setApplications(prev => prev.map(a => {
+        if (a.id === appId) {
+          return { ...a, status: targetStatus };
+        }
+        return a;
+      }));
+      
+      await api.put(`/candidates/applications/${appId}/status`, {
+        status: targetStatus
+      });
+      fetchData();
+    } catch (err) {
+      alert('Failed to update stage status.');
+      fetchData();
+    }
+  };
+
   const filteredApps = applications.filter(app => {
     return jobFilter ? app.job_id.toString() === jobFilter : true;
   });
@@ -96,14 +127,25 @@ const Pipeline = () => {
                   <span className={styles.kanbanColumnBadge}>{columnApps.length}</span>
                 </div>
                 
-                <div className={styles.kanbanCardList}>
+                <div 
+                  className={styles.kanbanCardList}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => handleDrop(e, col)}
+                  style={{ minHeight: '150px' }}
+                >
                   {columnApps.length === 0 ? (
                     <div style={{ textAlign: 'center', color: 'var(--color-text-secondary)', padding: '2rem 1rem', fontSize: '0.8rem', border: '1px dashed var(--color-border)', borderRadius: '12px' }}>
                       No candidates in {col.toLowerCase()}
                     </div>
                   ) : (
                     columnApps.map(app => (
-                      <div key={app.id} className={styles.kanbanCard}>
+                      <div 
+                        key={app.id} 
+                        className={styles.kanbanCard}
+                        draggable={true}
+                        onDragStart={(e) => handleDragStart(e, app.id)}
+                        style={{ cursor: 'grab' }}
+                      >
                         <div className={styles.kanbanCardTitle}>{app.candidate.user.full_name}</div>
                         <div className={styles.kanbanCardJob}>{app.job.title}</div>
                         

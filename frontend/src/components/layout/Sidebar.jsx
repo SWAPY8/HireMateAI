@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -15,7 +15,9 @@ import {
   Search,
   Bell,
   LogOut,
-  Laptop
+  Laptop,
+  Sun,
+  Moon
 } from 'lucide-react';
 import styles from './Layout.module.css';
 
@@ -26,6 +28,17 @@ const Sidebar = () => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const [theme, setTheme] = useState(localStorage.getItem('hiremate_theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('hiremate_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
   if (!user) return null;
@@ -55,9 +68,12 @@ const Sidebar = () => {
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.logoArea}>
-        <div className={styles.logoIcon}>HM</div>
-        <span className={styles.logoText}>HireMate <span className={styles.accentText}>AI</span></span>
+      <div className={styles.logoArea} style={{ backgroundColor: '#FFFFFF', padding: '0.4rem 0.75rem', borderRadius: '10px', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img 
+          src="/logo.png" 
+          alt="HireMate AI Logo" 
+          style={{ width: '100%', height: 'auto', objectFit: 'contain' }} 
+        />
       </div>
 
       <div className={styles.userInfo}>
@@ -88,6 +104,32 @@ const Sidebar = () => {
           );
         })}
       </nav>
+
+      <button 
+        onClick={toggleTheme}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          padding: '0.85rem 1rem',
+          borderRadius: '12px',
+          background: 'transparent',
+          border: 'none',
+          color: '#C1C1CD',
+          fontFamily: 'var(--font-heading)',
+          fontWeight: 500,
+          fontSize: '0.95rem',
+          cursor: 'pointer',
+          width: '100%',
+          marginBottom: '0.5rem',
+          textAlign: 'left',
+          transition: 'all 0.2s ease'
+        }}
+        title="Toggle Light/Dark Theme"
+      >
+        {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+        <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+      </button>
 
       <button className={styles.logoutBtn} onClick={handleLogout}>
         <LogOut size={20} />

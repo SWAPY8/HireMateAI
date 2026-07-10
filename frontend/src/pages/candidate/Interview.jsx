@@ -4,7 +4,7 @@ import PageWrapper from '../../components/layout/PageWrapper';
 import api from '../../api';
 import { useAuth } from '../../contexts/AuthContext';
 import { sendGeneralEmail } from '../../services/emailService';
-import { Send, Sparkles, Laptop, Shield, Award, HelpCircle, AlertCircle } from 'lucide-react';
+import { Send, Sparkles, Laptop, Shield, Award, HelpCircle, AlertCircle, Mic, MicOff } from 'lucide-react';
 import styles from './Candidate.module.css';
 
 const Interview = () => {
@@ -25,6 +25,57 @@ const Interview = () => {
   const [answersList, setAnswersList] = useState([]);
   const [evaluating, setEvaluating] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Speech Recognition hook
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setUserInput(prev => prev + (prev ? ' ' : '') + transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert("Voice recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        recognitionRef.current.start();
+      } catch (err) {
+        console.error("Error starting speech recognition:", err);
+      }
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -220,14 +271,46 @@ HireMate AI Training Team`;
                   <div ref={messagesEndRef} />
                 </div>
                 
-                <form onSubmit={handleSendMessage} className={styles.chatInputArea}>
+                <form onSubmit={handleSendMessage} className={styles.chatInputArea} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <button 
+                      type="button" 
+                      className="btn" 
+                      onClick={toggleListening}
+                      disabled={evaluating || evaluationReport !== null}
+                      style={{ 
+                        padding: '0.75rem', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        backgroundColor: isListening ? '#dc3545' : 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid var(--color-border)',
+                        color: isListening ? '#fff' : 'var(--color-text-main)',
+                        cursor: 'pointer',
+                        borderRadius: '8px',
+                        transition: 'all 0.2s ease'
+                      }}
+                      title={isListening ? "Listening... click to stop" : "Speak your answer (Voice-to-Text)"}
+                    >
+                      {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+                    </button>
+                    {isListening && (
+                      <div style={{ display: 'flex', gap: '3px', alignItems: 'center', height: '20px', padding: '0 0.25rem' }}>
+                        <span className="voice-bar" style={{ animationDelay: '0s' }}></span>
+                        <span className="voice-bar" style={{ animationDelay: '0.15s' }}></span>
+                        <span className="voice-bar" style={{ animationDelay: '0.3s' }}></span>
+                        <span className="voice-bar" style={{ animationDelay: '0.45s' }}></span>
+                      </div>
+                    )}
+                  </div>
                   <input 
                     type="text" 
                     className="form-input" 
-                    placeholder="Type your response here..." 
+                    placeholder={isListening ? "Listening to your voice..." : "Type or speak your response here..."} 
                     value={userInput}
                     onChange={(e) => setUserInput(e.target.value)}
                     disabled={evaluating || evaluationReport !== null}
+                    style={{ flex: 1 }}
                   />
                   <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem' }}>
                     <Send size={18} />

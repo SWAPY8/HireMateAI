@@ -27,6 +27,26 @@ const Interviews = () => {
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const getGoogleCalendarUrl = (meet) => {
+    if (!meet) return '#';
+    const title = encodeURIComponent(`Interview: ${meet.application.candidate.user.full_name} for ${meet.application.job.title}`);
+    const start = new Date(meet.date_time).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const end = new Date(new Date(meet.date_time).getTime() + 60 * 60 * 1000).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const details = encodeURIComponent(meet.details || "Interview scheduled via HireMate AI.");
+    const location = encodeURIComponent(meet.location_type === 'Online' ? 'Online Video Call' : 'On-site Office');
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&location=${location}`;
+  };
+
+  const getOutlookCalendarUrl = (meet) => {
+    if (!meet) return '#';
+    const title = encodeURIComponent(`Interview: ${meet.application.candidate.user.full_name} for ${meet.application.job.title}`);
+    const start = new Date(meet.date_time).toISOString();
+    const end = new Date(new Date(meet.date_time).getTime() + 60 * 60 * 1000).toISOString();
+    const details = encodeURIComponent(meet.details || "Interview scheduled via HireMate AI.");
+    const location = encodeURIComponent(meet.location_type === 'Online' ? 'Online Video Call' : 'On-site Office');
+    return `https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&subject=${title}&startdt=${start}&enddt=${end}&body=${details}&location=${location}`;
+  };
+
   // New Interview Form
   const [appId, setAppId] = useState('');
   const [dateTime, setDateTime] = useState('');
@@ -271,6 +291,31 @@ HireMate Recruiting Team`;
                   <div style={{ fontSize: '0.88rem', backgroundColor: 'var(--color-bg)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--color-border)' }}>
                     {selectedInterview.details}
                   </div>
+                  
+                  {selectedInterview.status === 'Scheduled' && (
+                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
+                      <a 
+                        href={getGoogleCalendarUrl(selectedInterview)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', backgroundColor: 'rgba(255,255,255,0.02)' }}
+                      >
+                        <Calendar size={14} style={{ color: '#4285F4' }} />
+                        <span>Add to Google Calendar</span>
+                      </a>
+                      <a 
+                        href={getOutlookCalendarUrl(selectedInterview)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', backgroundColor: 'rgba(255,255,255,0.02)' }}
+                      >
+                        <Calendar size={14} style={{ color: '#0078d4' }} />
+                        <span>Add to Outlook</span>
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* AI generated questions */}

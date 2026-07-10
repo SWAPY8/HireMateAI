@@ -7,9 +7,10 @@
   left: 0;
   display: flex;
   flex-direction: column;
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1.25rem;
   z-index: 100;
   color: #FFFFFF;
+  overflow-y: auto;
 }
 
 .logoArea {

@@ -4,7 +4,7 @@ echo             HireMate AI SaaS Launcher
 echo ===================================================
 echo.
 echo Starting FastAPI Backend REST API...
-start cmd /k "cd backend && python -m uvicorn app.main:app --reload"
+start cmd /k "cd backend && .\venv\Scripts\python -m uvicorn app.main:app --reload"
 echo FastAPI REST API launched.
 echo.
 echo Starting React Vite Frontend...

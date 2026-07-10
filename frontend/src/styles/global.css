@@ -42,6 +42,16 @@
   --header-height: 70px;
 }
 
+[data-theme='dark'] {
+  --color-bg: #0C0C0E;
+  --color-card-bg: #141416;
+  --color-text-main: #FFFFFF;
+  --color-text-secondary: #8E8E98;
+  --color-border: #232328;
+  --color-border-hover: #32323B;
+  --color-primary-light: rgba(200, 247, 74, 0.08);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -285,5 +295,20 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   gap: 0.5rem;
   animation: fadeInUp 0.3s ease-out;
+}
+
+/* Voice Waveform animation for active voice recording */
+@keyframes voiceWave {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+
+.voice-bar {
+  display: inline-block;
+  width: 3px;
+  height: 4px;
+  background-color: #dc3545;
+  border-radius: 2px;
+  animation: voiceWave 0.8s ease-in-out infinite;
 }
 

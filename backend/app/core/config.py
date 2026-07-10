@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     BACKUP_AI_API_KEY: str = os.getenv("BACKUP_AI_API_KEY", "")
     CANDIDATE_AI_API_KEY: str = os.getenv("CANDIDATE_AI_API_KEY", "")
     
+    # CORS Origins (comma-separated string)
+    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "")
+    
+    # Groq API configuration
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-specdec")
+    PRIMARY_AI_PROVIDER: str = os.getenv("PRIMARY_AI_PROVIDER", "gemini")
+    
     class Config:
         case_sensitive = True
 

@@ -45,6 +45,27 @@ async def upload_resume(
     if current_user.role != "candidate":
         raise HTTPException(status_code=403, detail="Only candidates can upload resumes to their profile.")
         
+    # Validate file type and extension
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    if file_ext not in ['.pdf', '.docx', '.doc']:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PDF, DOC, and DOCX files are allowed."
+        )
+
+    # Validate MIME type (allowing octet-stream as a fallback for generic/raw streams)
+    allowed_mimes = {
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'application/octet-stream'
+    }
+    if file.content_type not in allowed_mimes:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid document format. Only PDF, DOC, and DOCX documents are accepted."
+        )
+
     profile = db.query(CandidateProfile).filter(CandidateProfile.user_id == current_user.id).first()
     if not profile:
         profile = CandidateProfile(user_id=current_user.id)
@@ -210,6 +231,27 @@ async def upload_resume_for_job(
     if current_user.role != "founder":
         raise HTTPException(status_code=403, detail="Founders can upload candidate resumes directly to jobs.")
         
+    # Validate file type and extension
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    if file_ext not in ['.pdf', '.docx', '.doc']:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type. Only PDF, DOC, and DOCX files are allowed."
+        )
+
+    # Validate MIME type (allowing octet-stream as a fallback for generic/raw streams)
+    allowed_mimes = {
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'application/octet-stream'
+    }
+    if file.content_type not in allowed_mimes:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid document format. Only PDF, DOC, and DOCX documents are accepted."
+        )
+
     # Check if job exists
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:

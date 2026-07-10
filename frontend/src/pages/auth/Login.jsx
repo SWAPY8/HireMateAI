@@ -37,9 +37,13 @@ const Login = () => {
       </div>
       
       <div className={styles.authCard}>
-        <div className={styles.logoHeader}>
-          <div className={styles.logoIcon}>HM</div>
-          <h2 className={styles.logoText}>HireMate <span className={styles.logoAccent}>AI</span></h2>
+        <div className={styles.logoHeader} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <img 
+            src="/logo.png" 
+            alt="HireMate AI Logo" 
+            style={{ maxWidth: '240px', width: '100%', height: 'auto', objectFit: 'contain', backgroundColor: '#FFFFFF', padding: '0.4rem 0.75rem', borderRadius: '10px' }} 
+          />
+          <h2 className={styles.logoText} style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}>HireMate AI</h2>
         </div>
         
         <div className={styles.cardHeader}>
